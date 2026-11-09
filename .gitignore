@@ -1,0 +1,10 @@
+# Raw or per-posting data must stay local.
+jobs_sample.csv
+data/*.csv
+data/extracted.json
+
+# Local tooling
+__pycache__/
+*.py[cod]
+.venv/
+.env

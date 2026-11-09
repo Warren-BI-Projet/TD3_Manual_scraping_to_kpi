@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TD3 — Des annonces aux indicateurs</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #172b3a; background: #f4f7f9; }
+    body { max-width: 960px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    h1 { margin-bottom: .35rem; }
+    .intro, .note { color: #526474; line-height: 1.55; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .card, .chart { background: white; border: 1px solid #d9e2e9; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px #172b3a0b; }
+    .value { font-size: 2.4rem; font-weight: 700; color: #0a6582; }
+    .label { line-height: 1.4; }
+    .detail { color: #526474; font-size: .9rem; margin-top: .55rem; }
+    .chart { min-height: 390px; }
+    .chart canvas { width: 100% !important; height: 360px !important; }
+    #status { color: #9b2424; }
+  </style>
+</head>
+<body>
+  <h1>TD3 — Des annonces aux indicateurs</h1>
+  <p class="intro">Vue de contrôle d'un échantillon d'offres d'emploi : fréquence des compétences techniques extraites localement, puis comptées une fois par annonce.</p>
+  <div id="status" role="status">Chargement des indicateurs…</div>
+  <section class="cards" aria-label="Indicateurs">
+    <div class="card"><div id="main-value" class="value">—</div><div id="main-label" class="label"></div><div id="main-detail" class="detail"></div></div>
+    <div class="card"><div id="cloud-value" class="value">—</div><div id="cloud-label" class="label"></div><div id="cloud-detail" class="detail"></div></div>
+    <div class="card"><div id="average-value" class="value">—</div><div class="label">Compétences distinctes par annonce, en moyenne</div></div>
+  </section>
+  <section class="chart"><canvas id="skills-chart" role="img" aria-label="Compétences les plus souvent mentionnées"></canvas></section>
+  <p id="updated" class="detail"></p>
+  <p class="note">Les proportions décrivent uniquement cet échantillon. Elles dépendent des annonces retenues, du texte transmis au modèle et de la qualité de l'extraction ; elles ne mesurent pas tout le marché de l'emploi.</p>
+  <script>
+    const setText = (id, value) => { document.getElementById(id).textContent = value; };
+    fetch('data/kpi.json')
+      .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+      .then(data => {
+        if (!data.n_postings_analyzed) throw new Error('Aucune annonce analysée');
+        setText('status', '');
+        setText('main-value', `${(data.kpi_value * 100).toFixed(1)} %`);
+        setText('main-label', data.kpi_label);
+        setText('main-detail', `${data.n_matching} annonce(s) sur ${data.n_postings_analyzed}`);
+        setText('cloud-value', `${(data.second_kpi.value * 100).toFixed(1)} %`);
+        setText('cloud-label', data.second_kpi.label);
+        setText('cloud-detail', `${data.second_kpi.n_matching} annonce(s) sur ${data.n_postings_analyzed}`);
+        setText('average-value', data.avg_skills_per_posting.toLocaleString('fr-FR'));
+        setText('updated', `Calcul effectué le ${new Date(data.generated_at).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}.`);
+        const skills = data.top_skills || [];
+        new Chart(document.getElementById('skills-chart'), {
+          type: 'bar',
+          data: { labels: skills.map(item => item.skill), datasets: [{ data: skills.map(item => item.count), backgroundColor: '#0a6582' }] },
+          options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+            scales: { x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: "Nombre d'annonces" } } },
+            plugins: { legend: { display: false }, title: { display: true, text: 'Compétences les plus citées dans l’échantillon' } } }
+        });
+      })
+      .catch(error => { setText('status', `Impossible de charger les indicateurs : ${error.message}`); });
+  </script>
+</body>
+</html>
