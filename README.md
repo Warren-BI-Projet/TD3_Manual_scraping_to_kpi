@@ -17,6 +17,13 @@ python -X utf8 scripts/compute_kpi.py
 
 L'extraction analyse les 5 000 premiers caractères de chaque description et réessaie sur la fin du texte lorsqu'elle obtient une liste vide. Le contrôle manuel corrige trois erreurs observées dans les lignes 8, 10 et 11 du CSV local, après vérification littérale dans leurs descriptions ; il est spécifique à cet échantillon. Le calcul compte chaque compétence au plus une fois par annonce et normalise les espaces, la casse et quelques alias. L'indicateur principal est la part des annonces mentionnant explicitement Python. Le second mesure la part mentionnant au moins un fournisseur cloud parmi AWS, Azure et GCP.
 
+## Résultat publié
+
+- Dépôt : https://github.com/Warren-BI-Projet/TD3_Manual_scraping_to_kpi
+- Tableau de bord : https://warren-bi-projet.github.io/TD3_Manual_scraping_to_kpi/
+
+L'échange de l'extraction avec un camarade, demandé dans l'énoncé, reste à effectuer. La relecture personnelle et ses corrections sont décrites dans `REFLECTIONS.md`.
+
 ## Données et publication
 
 - `data/jobs_sample.csv` : annonces brutes, locales uniquement.
@@ -26,4 +33,4 @@ L'extraction analyse les 5 000 premiers caractères de chaque description et ré
 
 Les deux premiers fichiers sont exclus par `.gitignore`. Le JSON public ne contient ni titre, ni entreprise, ni description, ni URL d'annonce. Il décrit cet échantillon et ne permet pas d'estimer à lui seul la demande du marché. Les réponses et limites de méthode figurent dans `REFLECTIONS.md`.
 
-Pour publier via GitHub Pages : choisir la branche `main` et le dossier `/docs` dans **Settings → Pages** après avoir poussé les fichiers publics. Vérifier le graphique et les deux pourcentages à l'URL Pages du dépôt.
+GitHub Pages publie la branche `main` depuis le dossier `/docs`.
